@@ -91,6 +91,7 @@
     let characters = [];
     let currentTurn = 0;
 
+    // Render the character table
     function renderTable() {
       const table = document.getElementById("tableBody");
       table.innerHTML = "";
@@ -106,4 +107,103 @@
           <td>${char.tempHP}</td>
           <td class="damage-cell">
             <input type="number" id="damage-${index}" min="0" />
-            <button onclick="applyDamage($
+            <button onclick="applyDamage(${index})">Apply</button>
+          </td>
+          <td>
+            <button onclick="editCharacter(${index})">Edit</button>
+            <button onclick="removeCharacter(${index})">Remove</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    // Add a new character (just a name required)
+    function addCharacter() {
+      const name = prompt("Name?") || "Unnamed";
+
+      // Create a character with default values (can edit later)
+      characters.push({
+        name,
+        initiative: 0,
+        maxHP: 1,
+        currentHP: 1,
+        tempHP: 0
+      });
+
+      renderTable();
+    }
+
+    // Edit character's stats (Initiative, Max HP, Current HP, Temp HP)
+    function editCharacter(index) {
+      const char = characters[index];
+
+      const newInitiative = prompt("Initiative?", char.initiative);
+      const newMaxHP = prompt("Max HP?", char.maxHP);
+      const newCurrentHP = prompt("Current HP?", char.currentHP);
+      const newTempHP = prompt("Temp HP?", char.tempHP);
+
+      if (newInitiative !== null && newInitiative !== "") char.initiative = parseInt(newInitiative, 10);
+      if (newMaxHP !== null && newMaxHP !== "") char.maxHP = parseInt(newMaxHP, 10);
+      if (newCurrentHP !== null && newCurrentHP !== "") char.currentHP = parseInt(newCurrentHP, 10);
+      if (newTempHP !== null && newTempHP !== "") char.tempHP = parseInt(newTempHP, 10);
+
+      renderTable();
+    }
+
+    // Apply damage to a character
+    function applyDamage(index) {
+      const input = document.getElementById(`damage-${index}`);
+      let damage = parseInt(input.value, 10);
+      if (isNaN(damage) || damage < 0) return;
+
+      const char = characters[index];
+
+      // Apply damage to Temp HP first, then to Current HP
+      if (char.tempHP >= damage) {
+        char.tempHP -= damage;
+      } else {
+        damage -= char.tempHP;
+        char.tempHP = 0;
+        char.currentHP -= damage;
+        if (char.currentHP < 0) char.currentHP = 0;
+      }
+
+      input.value = "";
+      renderTable();
+    }
+
+    // Remove a character from the list
+    function removeCharacter(index) {
+      characters.splice(index, 1);
+      if (currentTurn >= characters.length) currentTurn = 0;
+      renderTable();
+    }
+
+    // Sort characters by initiative value
+    function sortInitiative() {
+      characters.sort((a, b) => b.initiative - a.initiative);
+      currentTurn = 0;
+      renderTable();
+    }
+
+    // Move to the next character's turn
+    function nextTurn() {
+      if (characters.length > 0) {
+        currentTurn = (currentTurn + 1) % characters.length;
+        renderTable();
+      }
+    }
+
+    // Clear all characters and end combat
+    function endCombat() {
+      if (confirm("Are you sure you want to end combat and clear all data?")) {
+        characters = [];
+        currentTurn = 0;
+        renderTable();
+      }
+    }
+  </script>
+</body>
+</html>
+
