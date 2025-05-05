@@ -115,21 +115,23 @@
       });
     }
 
-    function addCharacter() {
-      const name = prompt("Name?");
-      const initiative = parseInt(prompt("Initiative?"), 10);
-      const maxHP = parseInt(prompt("Max HP?"), 10);
-      const tempHP = parseInt(prompt("Temp HP?"), 10) || 0;
-      if (name && !isNaN(initiative) && !isNaN(maxHP)) {
-        characters.push({
-          name,
-          initiative,
-          maxHP,
-          currentHP: maxHP,
-          tempHP
-        });
-        sortInitiative();
-      }
+ function addCharacter() {
+  const name = prompt("Name?") || "Unnamed";
+  const initiative = parseInt(prompt("Initiative?"), 10);
+  const maxHP = parseInt(prompt("Max HP?"), 10);
+  const tempHP = parseInt(prompt("Temp HP?"), 10);
+
+  characters.push({
+    name,
+    initiative: isNaN(initiative) ? 0 : initiative,
+    maxHP: isNaN(maxHP) ? 1 : maxHP,
+    currentHP: isNaN(maxHP) ? 1 : maxHP,
+    tempHP: isNaN(tempHP) ? 0 : tempHP
+  });
+
+  sortInitiative();
+}
+
     }
 
     function removeCharacter(index) {
