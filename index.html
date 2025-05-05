@@ -106,47 +106,4 @@
           <td>${char.tempHP}</td>
           <td class="damage-cell">
             <input type="number" id="damage-${index}" min="0" />
-            <button onclick="applyDamage(${index})">Apply</button>
-          </td>
-          <td>
-            <button onclick="editCharacter(${index})">Edit</button>
-            <button onclick="removeCharacter(${index})">Remove</button>
-          </td>
-        `;
-        table.appendChild(row);
-      });
-    }
-
-    function addCharacter() {
-      const name = prompt("Name?") || "Unnamed";
-
-      characters.push({
-        name,
-        initiative: 0,
-        maxHP: 1,
-        currentHP: 1,
-        tempHP: 0
-      });
-
-      sortInitiative();
-    }
-
-    function editCharacter(index) {
-      const char = characters[index];
-
-      const newInitiative = parseInt(prompt("Initiative?", char.initiative), 10);
-      const newMaxHP = parseInt(prompt("Max HP?", char.maxHP), 10);
-      const newCurrentHP = parseInt(prompt("Current HP?", char.currentHP), 10);
-      const newTempHP = parseInt(prompt("Temp HP?", char.tempHP), 10);
-
-      if (!isNaN(newInitiative)) char.initiative = newInitiative;
-      if (!isNaN(newMaxHP)) char.maxHP = newMaxHP;
-      if (!isNaN(newCurrentHP)) char.currentHP = newCurrentHP;
-      if (!isNaN(newTempHP)) char.tempHP = newTempHP;
-
-      renderTable();
-    }
-
-    function applyDamage(index) {
-      const input = document.getElementById(`damage-${index}`);
-      let d
+            <button onclick="applyDamage($
