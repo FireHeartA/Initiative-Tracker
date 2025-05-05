@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>D&D Initiative Tracker</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+      color: black;
+    }
+
+    h1 {
+      text-align: center;
+      color: black;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 20px;
+    }
+
+    th {
+      padding: 12px;
+      background-color: #000;
+      color: white;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+      color: black;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #e9e9e9;
+    }
+
+    tr:nth-child(odd) td {
+      background-color: #ffffff;
+    }
+
+    td.damage-cell {
+      background-color: #ffeb3b;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 14px;
+    }
+
+    input[type="number"] {
+      width: 60px;
+    }
+  </style>
+</head>
+<body>
+  <h1>D&D Initiative Tracker</h1>
+  <div style="text-align: center;">
+    <button onclick="addCharacter()">Add Character</button>
+    <button onclick="nextTurn()">Next Turn</button>
+    <button onclick="sortInitiative()">Sort by Initiative</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Initiative</th>
+        <th>Max HP</th>
+        <th>Current HP</th>
+        <th>Temp HP</th>
+        <th>Damage</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    let characters = [];
+    let currentTurn = 0;
+
+    function renderTable() {
+      const table = document.getElementById("tableBody");
+      table.innerHTML = "";
+      characters.forEach((char, index) => {
+        const row = document.createElement("tr");
+        if (index === currentTurn) row.style.border = "2px solid green";
+
+        row.innerHTML = `
+          <td>${char.name}</td>
+          <td>${char.initiative}</td>
+          <td>${char.maxHP}</td>
+          <td>${char.currentHP}</td>
+          <td>${char.tempHP}</td>
+          <td class="damage-cell">
+            <input type="number" id="damage-${index}" min="0" />
+            <button onclick="applyDamage(${index})">Apply</button>
+          </td>
+          <td>
+            <button onclick="editHP(${index})">Edit HP</button>
+            <button onclick="removeCharacter(${index})">Remove</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function addCharacter() {
+      const name = prompt("Name?");
+      const initiative = parseInt(prompt("Initiative?"), 10);
+      const maxHP = parseInt(prompt("Max HP?"), 10);
+      const tempHP = parseInt(prompt("Temp HP?"), 10) || 0;
+      if (name && !isNaN(initiative) && !isNaN(maxHP)) {
+        characters.push({
+          name,
+          initiative,
+          maxHP,
+          currentHP: maxHP,
+          tempHP
+        });
+        sortInitiative();
+      }
+    }
+
+    function removeCharacter(index) {
+      characters.splice(index, 1);
+      if (currentTurn >= characters.length) currentTurn = 0;
+      renderTable();
+    }
+
+    function editHP(index) {
+      const newHP = parseInt(prompt("New current HP:"), 10);
+      const newTemp = parseInt(prompt("New temp HP:"), 10);
+      if (!isNaN(newHP)) characters[index].currentHP = newHP;
+      if (!isNaN(newTemp)) characters[index].tempHP = newTemp;
+      renderTable();
+    }
+
+    function applyDamage(index) {
+      const input = document.getElementById(`damage-${index}`);
+      let damage = parseInt(input.value, 10);
+      if (isNaN(damage) || damage < 0) return;
+
+      const char = characters[index];
+
+      if (char.tempHP >= damage) {
+        char.tempHP -= damage;
+      } else {
+        damage -= char.tempHP;
+        char.tempHP = 0;
+        char.currentHP -= damage;
+        if (char.currentHP < 0) char.currentHP = 0;
+      }
+
+      input.value = "";
+      renderTable();
+    }
+
+    function sortInitiative() {
+      characters.sort((a, b) => b.initiative - a.initiative);
+      currentTurn = 0;
+      renderTable();
+    }
+
+    function nextTurn() {
+      if (characters.length > 0) {
+        currentTurn = (currentTurn + 1) % characters.length;
+        renderTable();
+      }
+    }
+
+    // Optional starter data
+    characters = [
+      { name: "Thorn", initiative: 15, maxHP: 30, currentHP: 30, tempHP: 5 },
+      { name: "Goblin", initiative: 18, maxHP: 12, currentHP: 12, tempHP: 0 },
+      { name: "Elara", initiative: 12, maxHP: 25, currentHP: 25, tempHP: 3 }
+    ];
+    sortInitiative();
+  </script>
+</body>
+</html>
