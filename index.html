@@ -64,10 +64,12 @@
 </head>
 <body>
   <h1>D&D Initiative Tracker</h1>
+
   <div style="text-align: center;">
     <button onclick="addCharacter()">Add Character</button>
     <button onclick="nextTurn()">Next Turn</button>
     <button onclick="sortInitiative()">Sort by Initiative</button>
+    <button onclick="endCombat()">End Combat</button>
   </div>
 
   <table>
@@ -107,7 +109,7 @@
             <button onclick="applyDamage(${index})">Apply</button>
           </td>
           <td>
-            <button onclick="editHP(${index})">Edit HP</button>
+            <button onclick="editCharacter(${index})">Edit</button>
             <button onclick="removeCharacter(${index})">Remove</button>
           </td>
         `;
@@ -115,79 +117,36 @@
       });
     }
 
- function addCharacter() {
-  const name = prompt("Name?") || "Unnamed";
-  const initiative = parseInt(prompt("Initiative?"), 10);
-  const maxHP = parseInt(prompt("Max HP?"), 10);
-  const tempHP = parseInt(prompt("Temp HP?"), 10);
+    function addCharacter() {
+      const name = prompt("Name?") || "Unnamed";
 
-  characters.push({
-    name,
-    initiative: isNaN(initiative) ? 0 : initiative,
-    maxHP: isNaN(maxHP) ? 1 : maxHP,
-    currentHP: isNaN(maxHP) ? 1 : maxHP,
-    tempHP: isNaN(tempHP) ? 0 : tempHP
-  });
+      characters.push({
+        name,
+        initiative: 0,
+        maxHP: 1,
+        currentHP: 1,
+        tempHP: 0
+      });
 
-  sortInitiative();
-}
-
+      sortInitiative();
     }
 
-    function removeCharacter(index) {
-      characters.splice(index, 1);
-      if (currentTurn >= characters.length) currentTurn = 0;
-      renderTable();
-    }
+    function editCharacter(index) {
+      const char = characters[index];
 
-    function editHP(index) {
-      const newHP = parseInt(prompt("New current HP:"), 10);
-      const newTemp = parseInt(prompt("New temp HP:"), 10);
-      if (!isNaN(newHP)) characters[index].currentHP = newHP;
-      if (!isNaN(newTemp)) characters[index].tempHP = newTemp;
+      const newInitiative = parseInt(prompt("Initiative?", char.initiative), 10);
+      const newMaxHP = parseInt(prompt("Max HP?", char.maxHP), 10);
+      const newCurrentHP = parseInt(prompt("Current HP?", char.currentHP), 10);
+      const newTempHP = parseInt(prompt("Temp HP?", char.tempHP), 10);
+
+      if (!isNaN(newInitiative)) char.initiative = newInitiative;
+      if (!isNaN(newMaxHP)) char.maxHP = newMaxHP;
+      if (!isNaN(newCurrentHP)) char.currentHP = newCurrentHP;
+      if (!isNaN(newTempHP)) char.tempHP = newTempHP;
+
       renderTable();
     }
 
     function applyDamage(index) {
       const input = document.getElementById(`damage-${index}`);
-      let damage = parseInt(input.value, 10);
-      if (isNaN(damage) || damage < 0) return;
-
-      const char = characters[index];
-
-      if (char.tempHP >= damage) {
-        char.tempHP -= damage;
-      } else {
-        damage -= char.tempHP;
-        char.tempHP = 0;
-        char.currentHP -= damage;
-        if (char.currentHP < 0) char.currentHP = 0;
-      }
-
-      input.value = "";
-      renderTable();
-    }
-
-    function sortInitiative() {
-      characters.sort((a, b) => b.initiative - a.initiative);
-      currentTurn = 0;
-      renderTable();
-    }
-
-    function nextTurn() {
-      if (characters.length > 0) {
-        currentTurn = (currentTurn + 1) % characters.length;
-        renderTable();
-      }
-    }
-
-    // Optional starter data
-    characters = [
-      { name: "Thorn", initiative: 15, maxHP: 30, currentHP: 30, tempHP: 5 },
-      { name: "Goblin", initiative: 18, maxHP: 12, currentHP: 12, tempHP: 0 },
-      { name: "Elara", initiative: 12, maxHP: 25, currentHP: 25, tempHP: 3 }
-    ];
-    sortInitiative();
-  </script>
-</body>
-</html>
+      let d
